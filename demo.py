@@ -32,35 +32,35 @@ async def get_correct_repo_analysis(repo_name: str):
     
     # Create accurate summary
     summary = f"""
-## 📊 Repository Analysis: {repo_info.full_name}
+## Repository Analysis: {repo_info.full_name}
 
-### 🔍 Basic Information
+### Basic Information
 - **Description**: {repo_info.description or "No description available"}
 - **Primary Language**: {repo_info.language or "Not specified"}
-- **Stars**: {repo_info.stars:,} ⭐
-- **Forks**: {repo_info.forks:,} 🍴
+- **Stars**: {repo_info.stars:,}
+- **Forks**: {repo_info.forks:,}
 - **Last Updated**: {repo_info.last_updated}
 
-### 🐛 Issues Overview (Correct Counts)
+### Issues Overview (Correct Counts)
 - **Open Issues**: {issues_info['open_issues']} (from GitHub API)
 - **Closed Issues**: {issues_info['closed_issues']} (from GitHub API)
 - **Total Issues**: {issues_info['total_issues']} (from GitHub API)
 - **Recent Issues Sample**: {len(issues_info['recent_issues'])} issues shown below
 
-### 📋 Recent Issues
+### Recent Issues
 """
     
     for issue in issues_info['recent_issues']:
         summary += f"- **{issue['title']}** ({issue['state']}) - {issue['created_at']}\n"
         if issue['labels']:
-            summary += f"  🏷️ Labels: {', '.join(issue['labels'])}\n"
+            summary += f"  Labels: {', '.join(issue['labels'])}\n"
     
     if repo_info.topics:
-        summary += f"\n### 🏷️ Topics\n{', '.join(repo_info.topics)}\n"
+        summary += f"\n### Topics\n{', '.join(repo_info.topics)}\n"
     
     # Add README content if available
     if readme_content and readme_content != "README not available":
-        summary += f"\n### 📄 README Content\n{readme_content[:800]}...\n"
+        summary += f"\n### README Content\n{readme_content[:800]}...\n"
     
     return summary, readme_content
 
@@ -159,7 +159,7 @@ async def get_clean_reasoning_analysis(repo_name: str, github_data: str, readme_
             if "You are an expert analyst" in clean_result:
                 # This means we got the template instead of the analysis
                 return f"""
-## 🧠 AI Analysis Summary
+## AI Analysis Summary
 
 Based on the repository analysis, here are the key insights:
 
@@ -195,9 +195,9 @@ Based on the repository analysis, here are the key insights:
 async def analyze_repository_correct(repository_name: str, additional_doc_url: str = None):
     """Correct repository analysis with accurate issue counts."""
     
-    print(f"🔍 Correct Analysis: {repository_name}")
+    print(f"Correct Analysis: {repository_name}")
     print("=" * 50)
-    print("✅ This version uses GitHub Search API for accurate issue counts")
+    print("This version uses GitHub Search API for accurate issue counts")
     print()
     
     # Initialize tools
@@ -207,39 +207,39 @@ async def analyze_repository_correct(repository_name: str, additional_doc_url: s
     results = {}
     
     # Step 1: Correct GitHub + README Analysis
-    print("📊 Step 1: Correct GitHub Repository + README Analysis")
+    print("Step 1: Correct GitHub Repository + README Analysis")
     print("-" * 50)
     
     try:
         github_result, readme_content = await get_correct_repo_analysis(repository_name)
         results['github_and_readme'] = github_result
         results['readme_content'] = readme_content
-        print("✅ Correct GitHub + README analysis completed")
+        print("Correct GitHub + README analysis completed")
         
     except Exception as e:
-        print(f"❌ GitHub analysis failed: {e}")
+        print(f"GitHub analysis failed: {e}")
         results['github_and_readme'] = f"Error: {e}"
         results['readme_content'] = "Error"
     
     # Step 2: Additional Documentation (if provided)
     additional_docs = None
     if additional_doc_url:
-        print(f"\n📚 Step 2: Additional Documentation Analysis")
+        print(f"\nStep 2: Additional Documentation Analysis")
         print("-" * 40)
-        print(f"🔗 Analyzing: {additional_doc_url}")
+        print(f"Analyzing: {additional_doc_url}")
         
         try:
             doc_result = await doc_tool._arun(f"Analyze documentation at {additional_doc_url}")
             additional_docs = doc_result
             results['additional_docs'] = doc_result
-            print("✅ Additional documentation analysis completed")
+            print("Additional documentation analysis completed")
             
         except Exception as e:
-            print(f"❌ Additional documentation analysis failed: {e}")
+            print(f"Additional documentation analysis failed: {e}")
             results['additional_docs'] = f"Error: {e}"
     
     # Step 3: Clean Reasoning Analysis
-    print(f"\n🧠 Step 3: AI Reasoning Analysis")
+    print(f"\nStep 3: AI Reasoning Analysis")
     print("-" * 30)
     
     try:
@@ -250,10 +250,10 @@ async def analyze_repository_correct(repository_name: str, additional_doc_url: s
             additional_docs
         )
         results['reasoning'] = reasoning_result
-        print("✅ Reasoning analysis completed")
+        print("Reasoning analysis completed")
         
     except Exception as e:
-        print(f"❌ Reasoning analysis failed: {e}")
+        print(f"Reasoning analysis failed: {e}")
         results['reasoning'] = f"Error: {e}"
     
     return results
@@ -261,9 +261,9 @@ async def analyze_repository_correct(repository_name: str, additional_doc_url: s
 async def main():
     """Main function for correct demo."""
     
-    print("🌟 CloudBees Agentic Workflow Demo - Correct Version")
+    print("CloudBees Agentic Workflow Demo - Correct Version")
     print("=" * 60)
-    print("✅ Features:")
+    print("Features:")
     print("   - Correct issue counting using GitHub Search API")
     print("   - Clean, readable output formatting")
     print("   - Automatic GitHub README fetching")
@@ -273,7 +273,7 @@ async def main():
     
     # Get user input with validation
     while True:
-        repo_name = input("🔗 GitHub Repository (format: owner/repo): ").strip()
+        repo_name = input("GitHub Repository (format: owner/repo): ").strip()
         if repo_name and "/" in repo_name and not repo_name.startswith("http"):
             break
         elif not repo_name:
@@ -281,19 +281,19 @@ async def main():
             print(f"   Using default: {repo_name}")
             break
         else:
-            print("❌ Please enter repository in format: owner/repo (e.g., facebookresearch/co-tracker)")
+            print("Please enter repository in format: owner/repo (e.g., facebookresearch/co-tracker)")
     
-    print("\n📚 Additional Documentation Options:")
+    print("\nAdditional Documentation Options:")
     print("   - Leave blank for GitHub README only")
     print("   - Official docs (e.g., https://react.dev/)")
     print("   - Any other documentation URL")
     
-    additional_doc_url = input("📚 Additional Documentation URL (optional): ").strip()
+    additional_doc_url = input("Additional Documentation URL (optional): ").strip()
     if not additional_doc_url:
         additional_doc_url = None
         print("   Using GitHub README only")
     elif not additional_doc_url.startswith("http"):
-        print("❌ Please provide a full URL starting with http:// or https://")
+        print("Please provide a full URL starting with http:// or https://")
         additional_doc_url = None
     
     print()
@@ -302,16 +302,16 @@ async def main():
     try:
         results = await analyze_repository_correct(repo_name, additional_doc_url)
         
-        print("\n🎉 Analysis Complete!")
+        print("\nAnalysis Complete!")
         print("\n" + "="*60)
-        print("📊 COMPREHENSIVE ANALYSIS RESULTS")
+        print("COMPREHENSIVE ANALYSIS RESULTS")
         print("="*60)
         
         # Display results in clean format
         print("\n" + results.get('github_and_readme', 'No data'))
         
         if additional_doc_url and 'additional_docs' in results:
-            print(f"\n📚 ADDITIONAL DOCUMENTATION ANALYSIS")
+            print(f"\nADDITIONAL DOCUMENTATION ANALYSIS")
             print("-" * 40)
             docs_content = results['additional_docs']
             if isinstance(docs_content, str) and len(docs_content) > 500:
@@ -319,7 +319,7 @@ async def main():
             else:
                 print(docs_content)
         
-        print(f"\n🧠 AI REASONING ANALYSIS")
+        print(f"\nAI REASONING ANALYSIS")
         print("-" * 30)
         reasoning_content = results.get('reasoning', 'No reasoning available')
         if isinstance(reasoning_content, str) and len(reasoning_content) > 800:
@@ -327,13 +327,13 @@ async def main():
         else:
             print(reasoning_content)
         
-        print(f"\n✅ Analysis completed successfully!")
-        print(f"📋 Repository: {repo_name}")
-        print(f"📄 README: {'✅ Included' if results.get('readme_content') != 'README not available' else '❌ Not found'}")
-        print(f"📚 Additional Docs: {'✅ Included' if additional_doc_url else '❌ Not provided'}")
+        print(f"\nAnalysis completed successfully!")
+        print(f"Repository: {repo_name}")
+        print(f"README: {'Included' if results.get('readme_content') != 'README not available' else 'Not found'}")
+        print(f"Additional Docs: {'Included' if additional_doc_url else 'Not provided'}")
         
     except Exception as e:
-        print(f"❌ Analysis failed: {e}")
+        print(f"Analysis failed: {e}")
 
 if __name__ == "__main__":
     asyncio.run(main())
