@@ -8,7 +8,7 @@ from agents.github_agent import GitHubAgent
 async def basic_github_demo():
     """Run a basic demonstration of the GitHub agent."""
     
-    print("🌟 Basic Agentic Workflow Demo (GitHub Agent Only)")
+    print("Basic Agentic Workflow Demo (GitHub Agent Only)")
     print("=" * 55)
     print("This demo shows the GitHub agent functionality without requiring OpenAI API key.")
     print()
@@ -16,7 +16,7 @@ async def basic_github_demo():
     # Initialize GitHub agent
     github_agent = GitHubAgent()
     
-    print("📊 Demo 1: Repository Analysis")
+    print("Demo 1: Repository Analysis")
     print("-" * 30)
     
     try:
@@ -33,10 +33,10 @@ async def basic_github_demo():
         print(summary)
         
     except Exception as e:
-        print(f"❌ Error analyzing repository: {e}")
+        print(f"Error analyzing repository: {e}")
         print("This might be due to GitHub API rate limits or network issues.")
     
-    print("\n🔍 Demo 2: Repository Search")
+    print("\nDemo 2: Repository Search")
     print("-" * 30)
     
     try:
@@ -54,10 +54,10 @@ async def basic_github_demo():
             print(f"   Description: {repo.get('description', 'No description')[:100]}...")
         
     except Exception as e:
-        print(f"❌ Error searching repositories: {e}")
+        print(f"Error searching repositories: {e}")
         print("This might be due to GitHub API rate limits or network issues.")
     
-    print("\n🎉 Basic Demo Complete!")
+    print("\nBasic Demo Complete!")
     print("=" * 55)
     print("\nTo run the full demo with reasoning and analysis, you'll need:")
     print("1. An OpenAI API key (get one at https://platform.openai.com/)")

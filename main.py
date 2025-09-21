@@ -85,22 +85,22 @@ Use these tools autonomously to complete the user's request."""),
     async def analyze_repository_workflow(self, repository_name: str, documentation_url: Optional[str] = None) -> Dict[str, Any]:
         """Complete workflow for analyzing a repository and its documentation."""
         
-        print(f"🚀 Starting agentic workflow for repository: {repository_name}")
+        print(f"Starting agentic workflow for repository: {repository_name}")
         
         # Step 1: Analyze GitHub repository
-        print("\n📊 Step 1: Analyzing GitHub repository...")
+        print("\nStep 1: Analyzing GitHub repository...")
         github_query = f"repo:{repository_name}"
         github_result = await self.agent_executor.ainvoke({"input": github_query})
         
         # Step 2: Analyze documentation if provided
         doc_result = None
         if documentation_url:
-            print(f"\n📚 Step 2: Analyzing documentation from {documentation_url}...")
+            print(f"\nStep 2: Analyzing documentation from {documentation_url}...")
             doc_query = f"Analyze the documentation at {documentation_url}"
             doc_result = await self.agent_executor.ainvoke({"input": doc_query})
         
         # Step 3: Validate and reason about the data
-        print("\n🔍 Step 3: Validating and reasoning about the data...")
+        print("\nStep 3: Validating and reasoning about the data...")
         
         # Prepare data for validation
         validation_data = {
@@ -112,7 +112,7 @@ Use these tools autonomously to complete the user's request."""),
         validation_result = await self.agent_executor.ainvoke({"input": validation_query})
         
         # Step 4: Generate final recommendations
-        print("\n💡 Step 4: Generating final recommendations...")
+        print("\nStep 4: Generating final recommendations...")
         final_query = f"""
         Based on the GitHub analysis and documentation analysis, provide:
         1. A comprehensive summary of the repository
@@ -139,15 +139,15 @@ Use these tools autonomously to complete the user's request."""),
     async def search_and_analyze_workflow(self, search_query: str, max_repos: int = 3) -> Dict[str, Any]:
         """Workflow for searching and analyzing multiple repositories."""
         
-        print(f"🔍 Starting search and analysis workflow for: {search_query}")
+        print(f"Starting search and analysis workflow for: {search_query}")
         
         # Step 1: Search for repositories
-        print(f"\n📊 Step 1: Searching for repositories matching '{search_query}'...")
+        print(f"\nStep 1: Searching for repositories matching '{search_query}'...")
         search_query_formatted = f"search:{search_query}"
         search_result = await self.agent_executor.ainvoke({"input": search_query_formatted})
         
         # Step 2: Analyze top repositories
-        print(f"\n🔍 Step 2: Analyzing top {max_repos} repositories...")
+        print(f"\nStep 2: Analyzing top {max_repos} repositories...")
         analysis_results = []
         
         # Extract repository names from search results (simplified parsing)
@@ -163,7 +163,7 @@ Use these tools autonomously to complete the user's request."""),
             })
         
         # Step 3: Compare and rank repositories
-        print(f"\n⚖️ Step 3: Comparing and ranking repositories...")
+        print(f"\nStep 3: Comparing and ranking repositories...")
         comparison_query = f"""
         Compare and rank the following repositories based on:
         1. Code quality indicators (stars, forks, issues)
@@ -203,12 +203,12 @@ Use these tools autonomously to complete the user's request."""),
     async def autonomous_decision_workflow(self, context: str, decision_point: str) -> Dict[str, Any]:
         """Workflow for autonomous decision making."""
         
-        print(f"🤖 Starting autonomous decision workflow...")
+        print(f"Starting autonomous decision workflow...")
         print(f"Context: {context}")
         print(f"Decision Point: {decision_point}")
         
         # Step 1: Gather relevant information
-        print(f"\n📊 Step 1: Gathering relevant information...")
+        print(f"\nStep 1: Gathering relevant information...")
         info_query = f"""
         Based on the context and decision point, identify what information would be helpful:
         
@@ -221,12 +221,12 @@ Use these tools autonomously to complete the user's request."""),
         info_result = await self.agent_executor.ainvoke({"input": info_query})
         
         # Step 2: Apply reasoning
-        print(f"\n🧠 Step 2: Applying logical reasoning...")
+        print(f"\nStep 2: Applying logical reasoning...")
         reasoning_query = f"reason:{context}\n\nDecision Point: {decision_point}"
         reasoning_result = await self.agent_executor.ainvoke({"input": reasoning_query})
         
         # Step 3: Generate decision and rationale
-        print(f"\n💡 Step 3: Generating decision and rationale...")
+        print(f"\nStep 3: Generating decision and rationale...")
         decision_query = f"""
         Based on the context, decision point, and reasoning analysis, provide:
         1. A clear decision or recommendation
@@ -262,7 +262,7 @@ async def main():
     orchestrator = AgenticWorkflowOrchestrator()
     
     # Example 1: Analyze a specific repository
-    print("\n🎯 Example 1: Repository Analysis Workflow")
+    print("\nExample 1: Repository Analysis Workflow")
     print("-" * 40)
     
     try:
@@ -271,15 +271,15 @@ async def main():
             documentation_url="https://code.visualstudio.com/docs"
         )
         
-        print("\n✅ Repository Analysis Complete!")
+        print("\nRepository Analysis Complete!")
         print(f"Repository: {result1['repository']}")
         print(f"Status: {result1['workflow_status']}")
         
     except Exception as e:
-        print(f"❌ Error in repository analysis: {e}")
+        print(f"Error in repository analysis: {e}")
     
     # Example 2: Search and analyze multiple repositories
-    print("\n🎯 Example 2: Search and Analysis Workflow")
+    print("\nExample 2: Search and Analysis Workflow")
     print("-" * 40)
     
     try:
@@ -288,15 +288,15 @@ async def main():
             max_repos=2
         )
         
-        print("\n✅ Search and Analysis Complete!")
+        print("\nSearch and Analysis Complete!")
         print(f"Search Query: {result2['search_query']}")
         print(f"Status: {result2['workflow_status']}")
         
     except Exception as e:
-        print(f"❌ Error in search and analysis: {e}")
+        print(f"Error in search and analysis: {e}")
     
     # Example 3: Autonomous decision making
-    print("\n🎯 Example 3: Autonomous Decision Workflow")
+    print("\nExample 3: Autonomous Decision Workflow")
     print("-" * 40)
     
     try:
@@ -305,14 +305,14 @@ async def main():
             decision_point="Should the team adopt Vue.js, Svelte, or stick with React?"
         )
         
-        print("\n✅ Autonomous Decision Complete!")
+        print("\nAutonomous Decision Complete!")
         print(f"Decision Point: {result3['decision_point']}")
         print(f"Status: {result3['workflow_status']}")
         
     except Exception as e:
-        print(f"❌ Error in autonomous decision: {e}")
+        print(f"Error in autonomous decision: {e}")
     
-    print("\n🎉 Agentic Workflow Demo Complete!")
+    print("\nAgentic Workflow Demo Complete!")
     print("=" * 50)
 
 
