@@ -29,10 +29,12 @@ A demonstration of autonomous multi-agent workflows using LangChain, showcasing 
 
 3. **Set up environment variables**
    ```bash
-   # Create a .env file
+   # Create a .env file (note: must be named exactly ".env")
    OPENAI_API_KEY=your_openai_api_key_here
    GITHUB_TOKEN=your_github_token_here  # Optional
    ```
+   
+   **Important**: The file must be named exactly `.env` (not `touch.env` or any other name)
 
 4. **Run the demo**
    
