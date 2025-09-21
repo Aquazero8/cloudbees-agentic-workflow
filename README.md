@@ -11,8 +11,20 @@ A demonstration of autonomous multi-agent workflows using LangChain, showcasing 
    ```
 
 2. **Install dependencies**
+   
+   **Windows/Linux:**
    ```bash
    pip install -r requirements.txt
+   ```
+   
+   **Mac:**
+   ```bash
+   # If pip is not available, try pip3
+   pip3 install -r requirements.txt
+   
+   # Or if Python/pip needs to be installed first:
+   # Install Python via Homebrew: brew install python
+   # Then: pip3 install -r requirements.txt
    ```
 
 3. **Set up environment variables**
@@ -23,8 +35,16 @@ A demonstration of autonomous multi-agent workflows using LangChain, showcasing 
    ```
 
 4. **Run the demo**
+   
+   **Windows/Linux:**
    ```bash
    python demo.py
+   ```
+   
+   **Mac:**
+   ```bash
+   # Try python3 if python doesn't work
+   python3 demo.py
    ```
 
 ## Overview
