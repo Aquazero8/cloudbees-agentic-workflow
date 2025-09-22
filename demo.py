@@ -345,6 +345,7 @@ async def analyze_repository_correct(repository_name: str, additional_doc_url: s
     
     # Step 2: Additional Documentation (if provided)
     additional_docs = None
+    step_counter = 2
     if additional_doc_url:
         print(f"\nStep 2: Additional Documentation Analysis")
         print("-" * 40)
@@ -359,9 +360,11 @@ async def analyze_repository_correct(repository_name: str, additional_doc_url: s
         except Exception as e:
             print(f"Additional documentation analysis failed: {e}")
             results['additional_docs'] = f"Error: {e}"
+        
+        step_counter = 3
     
-    # Step 3: Clean Reasoning Analysis
-    print(f"\nStep 3: AI Reasoning Analysis")
+    # Final Step: Clean Reasoning Analysis
+    print(f"\nStep {step_counter}: AI Reasoning Analysis")
     print("-" * 30)
     
     try:
