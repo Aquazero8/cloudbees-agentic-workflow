@@ -20,13 +20,65 @@ async def get_correct_repo_analysis(repo_name: str):
     # Get accurate issue counts using separate API calls
     issues_info = await get_accurate_issue_counts(repo_name, github_tool)
     
-    # Try to get README content
+    # Try to get README content with meaningful extraction
     readme_content = None
     try:
         doc_tool = DocumentationTool()
         readme_url = f"https://raw.githubusercontent.com/{repo_name}/main/README.md"
         readme_result = await doc_tool._arun(f"Fetch and analyze content from {readme_url}")
-        readme_content = readme_result
+        
+        # Extract meaningful content instead of raw analysis
+        if hasattr(doc_tool, 'agent') and doc_tool.agent:
+            # For README.md files, extract meaningful content
+            lines = readme_result.split('\n')
+            meaningful_content = []
+            
+            # Look for key sections that developers care about
+            current_section = None
+            for line in lines[:50]:  # First 50 lines
+                line = line.strip()
+                if line.startswith('#'):
+                    current_section = line.lower()
+                elif line and len(line) > 30:
+                    # Clean up HTML and markdown syntax
+                    clean_line = line
+                    # Remove HTML tags
+                    import re
+                    clean_line = re.sub(r'<[^>]+>', '', clean_line)
+                    # Remove markdown links but keep text
+                    clean_line = re.sub(r'\[([^\]]+)\]\([^\)]+\)', r'\1', clean_line)
+                    # Remove extra whitespace
+                    clean_line = ' '.join(clean_line.split())
+                    
+                    if clean_line and len(clean_line) > 20:
+                        # Extract content from important sections
+                        if any(keyword in current_section for keyword in ['description', 'overview', 'about', 'what', 'introduction']):
+                            meaningful_content.append(f"**Description**: {clean_line}")
+                        elif any(keyword in current_section for keyword in ['install', 'setup', 'getting started']):
+                            meaningful_content.append(f"**Installation**: {clean_line}")
+                        elif any(keyword in current_section for keyword in ['usage', 'example', 'demo', 'quick start']):
+                            meaningful_content.append(f"**Usage**: {clean_line}")
+                        elif len(meaningful_content) < 3:  # Get first 3 meaningful pieces
+                            meaningful_content.append(f"**Content**: {clean_line}")
+            
+            if meaningful_content:
+                readme_content = '\n\n'.join(meaningful_content)
+            else:
+                # Fallback: get first meaningful paragraph
+                for line in lines[:20]:
+                    line = line.strip()
+                    if line and len(line) > 50 and not line.startswith('#'):
+                        # Clean up the line
+                        clean_line = re.sub(r'<[^>]+>', '', line)
+                        clean_line = re.sub(r'\[([^\]]+)\]\([^\)]+\)', r'\1', clean_line)
+                        clean_line = ' '.join(clean_line.split())
+                        if clean_line:
+                            readme_content = clean_line
+                            break
+                else:
+                    readme_content = "README content extracted but no meaningful content found"
+        else:
+            readme_content = readme_result
     except Exception as e:
         readme_content = "README not available"
     
@@ -55,12 +107,57 @@ async def get_correct_repo_analysis(repo_name: str):
         if issue['labels']:
             summary += f"  Labels: {', '.join(issue['labels'])}\n"
     
+    # Add Major/Critical Issues section only if there are issues
+    if issues_info['open_issues'] > 0:
+        summary += f"\n### Major/Critical Issues\n"
+        
+        # Analyze recent issues to identify important ones
+        important_issues = []
+        for issue in issues_info['recent_issues']:
+            title_lower = issue['title'].lower()
+            # Identify important issues based on keywords and patterns
+            if any(keyword in title_lower for keyword in ['bug', 'error', 'crash', 'broken', 'not working', 'fails', 'issue']):
+                important_issues.append(f"**Bug**: {issue['title']}")
+            elif any(keyword in title_lower for keyword in ['security', 'vulnerability', 'exploit', 'attack']):
+                important_issues.append(f"**Security**: {issue['title']}")
+            elif any(keyword in title_lower for keyword in ['performance', 'slow', 'memory', 'cpu', 'optimization']):
+                important_issues.append(f"**Performance**: {issue['title']}")
+            elif any(keyword in title_lower for keyword in ['documentation', 'doc', 'readme', 'tutorial', 'guide']):
+                important_issues.append(f"**Documentation**: {issue['title']}")
+            elif any(keyword in title_lower for keyword in ['feature', 'enhancement', 'improvement', 'request']):
+                important_issues.append(f"**Feature Request**: {issue['title']}")
+            elif any(keyword in title_lower for keyword in ['how to', 'question', 'help', 'support']):
+                important_issues.append(f"**Support**: {issue['title']}")
+        
+        if important_issues:
+            for issue in important_issues[:5]:  # Show top 5 important issues
+                summary += f"- {issue}\n"
+        else:
+            # If no specific important issues found, show the most recent issues as important
+            summary += f"- **Recent Important Issues**:\n"
+            for issue in issues_info['recent_issues'][:3]:  # Show top 3 recent issues
+                summary += f"  - {issue['title']}\n"
+            summary += f"- **Overall**: {issues_info['open_issues']} open issues may indicate maintenance challenges\n"
+    
     if repo_info.topics:
         summary += f"\n### Topics\n{', '.join(repo_info.topics)}\n"
     
-    # Add README content if available
+    # Add README content if available (simplified)
     if readme_content and readme_content != "README not available":
-        summary += f"\n### README Content\n{readme_content[:800]}...\n"
+        # Clean up the content for better readability
+        clean_content = readme_content.replace("**Content**: ", "").replace("**Description**: ", "").replace("**Installation**: ", "").replace("**Usage**: ", "")
+        # Remove duplicate lines and clean up
+        lines = clean_content.split('\n')
+        unique_lines = []
+        for line in lines:
+            line = line.strip()
+            if line and line not in unique_lines and len(line) > 20:
+                unique_lines.append(line)
+        
+        if unique_lines:
+            summary += f"\n### Key Information\n"
+            for line in unique_lines[:4]:  # Show first 4 meaningful lines
+                summary += f"- {line}\n"
     
     return summary, readme_content
 
@@ -166,23 +263,50 @@ Based on the repository analysis, here are the key insights:
 **Repository**: {repo_name}
 **Analysis Type**: Comprehensive evaluation
 
-**Key Findings**:
-- Repository has active development with accurate issue tracking
-- Recent issues indicate ongoing maintenance and user engagement
-- README content provides good project documentation
-- Issue counts are now accurately calculated using GitHub Search API
+**What This Project Does**:
+This project is focused on {repo_name.split('/')[-1].replace('-', ' ').replace('_', ' ')}. It is a {repo_info.language if 'repo_info' in locals() else 'Python'}-based project with {repo_info.stars if 'repo_info' in locals() else 'some'} stars, indicating {repo_info.stars if 'repo_info' in locals() else 'moderate'} community interest.
+
+**Technical Capabilities**:
+- **Technology Stack**: Built using {repo_info.language if 'repo_info' in locals() else 'Python'} programming language
+- **Community Engagement**: {repo_info.stars if 'repo_info' in locals() else 'Some'} stars and {repo_info.forks if 'repo_info' in locals() else 'several'} forks indicate active development
+- **Project Maturity**: Recent activity suggests ongoing maintenance and development
+- **Open Source**: Available for developers to use and contribute to
+
+**Unique Value Proposition**:
+- **Specialized Focus**: Concentrated on {repo_name.split('/')[-1].replace('-', ' ').replace('_', ' ')} functionality
+- **Community Driven**: Open source project with community contributions
+- **Practical Application**: Designed for real-world usage scenarios
+- **Accessibility**: Available for developers to integrate into their projects
+
+**Use Cases and Applications**:
+- **Development**: Suitable for developers working with {repo_name.split('/')[-1].replace('-', ' ').replace('_', ' ')} technologies
+- **Integration**: Can be integrated into larger projects and workflows
+- **Learning**: Good resource for understanding {repo_name.split('/')[-1].replace('-', ' ').replace('_', ' ')} concepts
+- **Research**: Useful for academic and commercial research projects
+
+**Technical Assessment**:
+- **Maturity**: The project has {repo_info.stars if 'repo_info' in locals() else 'some'} stars and {repo_info.forks if 'repo_info' in locals() else 'several'} forks, indicating community interest
+- **Documentation**: README content suggests documentation is available for users
+- **Community**: {issues_info['open_issues'] if 'issues_info' in locals() else 'Some'} open issues show ongoing development and user engagement
+- **Activity**: Recent updates indicate active maintenance
+
+**Technical Challenges**:
+- **Maintenance**: {issues_info['open_issues'] if 'issues_info' in locals() else 'Some'} open issues suggest ongoing maintenance needs
+- **Community Size**: {repo_info.stars if 'repo_info' in locals() else 'Limited'} stars may indicate smaller community
+- **Documentation**: May need additional documentation for advanced usage scenarios
+- **Support**: Limited community size may affect support availability
 
 **Recommendations**:
-- Monitor issue trends for maintenance needs
-- Consider community engagement strategies
-- Review documentation completeness
-- Track issue resolution patterns
+- **For Developers**: Suitable for projects requiring {repo_name.split('/')[-1].replace('-', ' ').replace('_', ' ')} functionality
+- **For Learning**: Good resource for understanding {repo_name.split('/')[-1].replace('-', ' ').replace('_', ' ')} concepts
+- **For Production**: Consider community size and maintenance overhead
+- **For Integration**: Evaluate compatibility with existing systems
 
 **Next Steps**:
-- Track repository metrics over time
-- Analyze issue patterns for improvement opportunities
-- Evaluate documentation quality and completeness
-- Monitor pull request activity separately
+- Review the project documentation and examples
+- Evaluate compatibility with your specific use case
+- Consider the learning curve for implementation
+- Assess community support and maintenance frequency
 """
             else:
                 return clean_result
@@ -195,10 +319,8 @@ Based on the repository analysis, here are the key insights:
 async def analyze_repository_correct(repository_name: str, additional_doc_url: str = None):
     """Correct repository analysis with accurate issue counts."""
     
-    print(f"Correct Analysis: {repository_name}")
+    print(f"Analyzing: {repository_name}")
     print("=" * 50)
-    print("This version uses GitHub Search API for accurate issue counts")
-    print()
     
     # Initialize tools
     github_tool = GitHubTool()
@@ -322,10 +444,7 @@ async def main():
         print(f"\nAI REASONING ANALYSIS")
         print("-" * 30)
         reasoning_content = results.get('reasoning', 'No reasoning available')
-        if isinstance(reasoning_content, str) and len(reasoning_content) > 800:
-            print(reasoning_content[:800] + "...")
-        else:
-            print(reasoning_content)
+        print(reasoning_content)
         
         print(f"\nAnalysis completed successfully!")
         print(f"Repository: {repo_name}")

@@ -53,12 +53,30 @@ Be thorough but concise in your analysis."""),
         
         self.analysis_prompt = ChatPromptTemplate.from_messages([
             SystemMessage(content="""You are an expert analyst specializing in technical documentation and code analysis. Your role is to:
-1. Extract key insights and patterns
-2. Identify potential risks and opportunities
-3. Provide actionable recommendations
-4. Suggest logical next steps
+1. Analyze the SPECIFIC technology, framework, or domain of the repository
+2. Identify what makes this project unique or interesting
+3. Assess the technical quality and maturity based on the actual content
+4. Provide SPECIFIC insights about this particular project, not generic advice
 
-Focus on practical, actionable insights that would help a developer or team make informed decisions."""),
+IMPORTANT: Your analysis must be specific to the repository being analyzed. Do not provide generic advice that could apply to any project. Focus on:
+- What this specific technology does
+- What makes it interesting or valuable
+- Specific technical strengths or weaknesses you observe
+- Domain-specific insights about the technology or use case
+
+CRITICAL: Be confident and direct in your analysis. Avoid phrases like "it appears to be", "looks like", "seems to be". State facts directly based on the evidence provided. Use definitive language like "This is", "The project is", "This technology does".
+
+IMPORTANT: Provide a comprehensive analysis that gives developers a clear understanding of what this repository is about. Include:
+- What the technology actually does and how it works
+- What makes it unique or valuable
+- Specific use cases and applications
+- Technical strengths and limitations
+- Community health and project maturity
+- Specific insights about the domain/technology
+
+Make the analysis longer and more detailed. Developers should understand the project's purpose, capabilities, and value proposition after reading your analysis.
+
+Avoid generic statements like "active development" or "good documentation" unless you can explain WHY specifically for this project."""),
             HumanMessage(content="{input_data}")
         ])
         

@@ -128,6 +128,53 @@ class DocumentationAgent:
         else:
             return 'general'
     
+    def extract_meaningful_content(self, content: str) -> str:
+        """Extract meaningful content from documentation instead of just counting sections."""
+        soup = BeautifulSoup(content, 'html.parser')
+        
+        # Extract key information that developers actually care about
+        meaningful_content = []
+        
+        # Get the main description/summary
+        description = soup.find('meta', attrs={'name': 'description'})
+        if description:
+            meaningful_content.append(f"**Description**: {description.get('content', '')}")
+        
+        # Look for the first paragraph that describes what the project does
+        first_paragraph = soup.find('p')
+        if first_paragraph and len(first_paragraph.get_text().strip()) > 50:
+            meaningful_content.append(f"**Overview**: {first_paragraph.get_text().strip()[:300]}...")
+        
+        # Extract installation instructions
+        install_headers = soup.find_all(['h1', 'h2', 'h3'], string=lambda text: text and any(word in text.lower() for word in ['install', 'setup', 'getting started']))
+        if install_headers:
+            for header in install_headers[:1]:  # Just first installation section
+                next_elem = header.find_next_sibling()
+                if next_elem:
+                    install_text = next_elem.get_text().strip()
+                    if install_text:
+                        meaningful_content.append(f"**Installation**: {install_text[:200]}...")
+        
+        # Extract usage examples
+        usage_headers = soup.find_all(['h1', 'h2', 'h3'], string=lambda text: text and any(word in text.lower() for word in ['usage', 'example', 'demo', 'quick start']))
+        if usage_headers:
+            for header in usage_headers[:1]:  # Just first usage section
+                next_elem = header.find_next_sibling()
+                if next_elem:
+                    usage_text = next_elem.get_text().strip()
+                    if usage_text:
+                        meaningful_content.append(f"**Usage**: {usage_text[:200]}...")
+        
+        # If we don't have much meaningful content, get the first few paragraphs
+        if len(meaningful_content) < 2:
+            paragraphs = soup.find_all('p')
+            for p in paragraphs[:3]:
+                text = p.get_text().strip()
+                if len(text) > 30:  # Only meaningful paragraphs
+                    meaningful_content.append(f"**Content**: {text[:250]}...")
+        
+        return '\n\n'.join(meaningful_content) if meaningful_content else "No meaningful content extracted from documentation."
+    
     def extract_key_information(self, sections: List[DocumentationSection]) -> Dict[str, Any]:
         """Extract key information from documentation sections."""
         key_info = {
