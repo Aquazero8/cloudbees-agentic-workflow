@@ -156,8 +156,23 @@ async def get_correct_repo_analysis(repo_name: str):
         
         if unique_lines:
             summary += f"\n### Key Information\n"
-            for line in unique_lines[:4]:  # Show first 4 meaningful lines
-                summary += f"- {line}\n"
+            meaningful_count = 0
+            for line in unique_lines:
+                # Clean up the line to remove HTML and make it readable
+                clean_line = re.sub(r'<[^>]+>', '', line)
+                clean_line = re.sub(r'\[([^\]]+)\]\([^\)]+\)', r'\1', clean_line)
+                clean_line = ' '.join(clean_line.split())
+                
+                # Only include lines that are meaningful and not HTML artifacts
+                if (clean_line and len(clean_line) > 30 and 
+                    not clean_line.startswith('**') and 
+                    not 'img src=' in line.lower() and
+                    not 'colab.research.google.com' in line.lower() and
+                    not 'alt=' in line.lower()):
+                    summary += f"- {clean_line}\n"
+                    meaningful_count += 1
+                    if meaningful_count >= 3:  # Limit to 3 meaningful lines
+                        break
     
     return summary, readme_content
 
