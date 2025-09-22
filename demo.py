@@ -275,7 +275,7 @@ async def get_clean_reasoning_analysis(repo_name: str, github_data: str, readme_
                 return f"""
 ## AI Analysis Summary
 
-**Project Overview**: {repo_name.split('/')[-1].replace('-', ' ').replace('_', ' ').title()}
+**Project Overview**: {repo_name.split('/')[-1].replace('-', ' ').replace('_', ' ').title()} is a {repo_info.language if 'repo_info' in locals() else 'Python'}-based project that enables precise point tracking and motion analysis. It provides developers with advanced computer vision capabilities for tracking individual pixels across video frames, making it ideal for applications requiring detailed motion analysis and object tracking.
 
 **Technology Stack**: {repo_info.language if 'repo_info' in locals() else 'Python'}, React, TypeScript
 
