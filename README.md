@@ -109,24 +109,65 @@ AI Analysis Summary
 
 ## Architecture
 
-```
-AgenticWorkflowOrchestrator
-├── GitHubAgent
-│   ├── Repository Analysis
-│   ├── Issues Tracking
-│   └── Repository Search
-├── DocumentationAgent
-│   ├── URL Fetching
-│   ├── Content Parsing
-│   └── Information Extraction
-├── ReasoningAgent
-│   ├── Data Validation
-│   ├── Logical Reasoning
-│   └── Analysis Generation
-└── LangChain Tools
-    ├── Tool Integration
-    ├── Agent Coordination
-    └── Workflow Orchestration
+```mermaid
+classDiagram
+    class AgenticWorkflowOrchestrator {
+        +orchestrate_workflow()
+        +coordinate_agents()
+        +manage_flow()
+    }
+    
+    class GitHubAgent {
+        +analyze_repository()
+        +fetch_issues()
+        +search_repositories()
+        +get_accurate_counts()
+    }
+    
+    class DocumentationAgent {
+        +fetch_documentation()
+        +parse_content()
+        +extract_information()
+        +clean_html_markdown()
+    }
+    
+    class ReasoningAgent {
+        +validate_data()
+        +apply_reasoning()
+        +generate_analysis()
+        +provide_insights()
+    }
+    
+    class LangChainTools {
+        +tool_integration()
+        +agent_coordination()
+        +workflow_management()
+    }
+    
+    class GitHubAPI {
+        +repository_data()
+        +issue_tracking()
+        +search_functionality()
+    }
+    
+    class OpenAIAPI {
+        +llm_reasoning()
+        +analysis_generation()
+        +content_processing()
+    }
+    
+    AgenticWorkflowOrchestrator --> GitHubAgent : coordinates
+    AgenticWorkflowOrchestrator --> DocumentationAgent : coordinates
+    AgenticWorkflowOrchestrator --> ReasoningAgent : coordinates
+    AgenticWorkflowOrchestrator --> LangChainTools : uses
+    
+    GitHubAgent --> GitHubAPI : queries
+    DocumentationAgent --> GitHubAPI : fetches_readme
+    ReasoningAgent --> OpenAIAPI : processes
+    
+    LangChainTools --> GitHubAgent : wraps
+    LangChainTools --> DocumentationAgent : wraps
+    LangChainTools --> ReasoningAgent : wraps
 ```
 
 ## Configuration
