@@ -86,20 +86,20 @@ The demo runs an interactive workflow:
 ### Example Output
 
 ```
-📊 Repository Analysis: facebookresearch/co-tracker
+Repository Analysis: facebookresearch/co-tracker
 
-🔍 Basic Information
+Basic Information
 - Description: CoTracker is a model for tracking any point (pixel) on a video.
 - Primary Language: Jupyter Notebook
-- Stars: 4,573 ⭐
-- Forks: 320 🍴
+- Stars: 4,573
+- Forks: 320
 
-🐛 Issues Overview (Correct Counts)
+Issues Overview (Correct Counts)
 - Open Issues: 85 (from GitHub API)
 - Closed Issues: 55 (from GitHub API)
 - Total Issues: 140 (from GitHub API)
 
-🧠 AI Analysis Summary
+AI Analysis Summary
 - Repository has active development with accurate issue tracking
 - Recent issues indicate ongoing maintenance and user engagement
 - README content provides good project documentation
