@@ -166,11 +166,7 @@ async def get_correct_repo_analysis(repo_name: str):
                 # Only include lines that are meaningful and not HTML artifacts
                 if (clean_line and len(clean_line) > 30 and 
                     not clean_line.startswith('**') and 
-                    not 'img src=' in line.lower() and
-                    not 'colab.research.google.com' in line.lower() and
-                    not 'alt=' in line.lower() and
-                    not '[Iurii Makarov]' in clean_line and
-                    not 'Nikita Karaev' in clean_line):
+                    not any(tag in line.lower() for tag in ['img src=', 'alt=', 'colab.research.google.com'])):
                     summary += f"- {clean_line}\n"
                     meaningful_count += 1
                     if meaningful_count >= 3:  # Limit to 3 meaningful lines
