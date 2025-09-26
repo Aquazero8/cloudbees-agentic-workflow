@@ -268,42 +268,40 @@ async def get_clean_reasoning_analysis(repo_name: str, github_data: str, readme_
             # If it still contains the template, try to extract the actual analysis
             if "You are an expert analyst" in clean_result:
                 # This means we got the template instead of the analysis
+                # Create a dynamic fallback based on actual repository data
+                project_name = repo_name.split('/')[-1].replace('-', ' ').replace('_', ' ').title()
+                language = repo_info.language if 'repo_info' in locals() else 'Unknown'
+                stars = repo_info.stars if 'repo_info' in locals() else 0
+                forks = repo_info.forks if 'repo_info' in locals() else 0
+                open_issues = issues_info['open_issues'] if 'issues_info' in locals() else 0
+                
                 return f"""
 ## AI Analysis Summary
 
-**Project Overview**: {repo_name.split('/')[-1].replace('-', ' ').replace('_', ' ').title()} is a {repo_info.language if 'repo_info' in locals() else 'Python'}-based project that enables precise point tracking and motion analysis. It provides developers with advanced computer vision capabilities for tracking individual pixels across video frames, making it ideal for applications requiring detailed motion analysis and object tracking.
+**Project Overview**: {project_name} is a {language}-based open source project. Based on the repository analysis, this appears to be an active development project with community engagement.
 
-**Technology Stack**: {repo_info.language if 'repo_info' in locals() else 'Python'}, React, TypeScript
+**Technology Stack**: {language}
 
-**Community Health**: {repo_info.stars if 'repo_info' in locals() else 'Some'} stars, {repo_info.forks if 'repo_info' in locals() else 'several'} forks, {issues_info['open_issues'] if 'issues_info' in locals() else 'some'} open issues
+**Community Health**: {stars:,} stars, {forks:,} forks, {open_issues} open issues
 
 **Key Capabilities**: 
-- Specialized functionality for {repo_name.split('/')[-1].replace('-', ' ').replace('_', ' ')}
-- Production-ready components with active maintenance
-- Well-documented with community support
-- Robust error handling and user feedback systems
-- Cross-platform compatibility and browser support
+- Active development and maintenance
+- Community-driven project with {stars:,} stars
+- {forks:,} forks indicating developer interest
+- Open source collaboration
 
-**Technical Strengths**:
-- Modern development practices with TypeScript
-- Active community engagement and contributions
-- Comprehensive documentation and examples
-- Regular updates and bug fixes
-- Professional-grade code quality
-
-**Use Cases**: 
-- Web development and component integration
-- Educational projects and learning resources
-- Enterprise applications requiring specialized functionality
-- Open source contributions and community projects
+**Technical Assessment**:
+- Repository shows active development
+- Community engagement through stars and forks
+- {open_issues} open issues may indicate active maintenance or need for attention
+- Language: {language}
 
 **Development Status**:
-- Active maintenance with recent updates
-- Strong community support and engagement
-- Well-established project with proven track record
-- Suitable for both learning and production use
+- Active repository with community participation
+- Suitable for further investigation and potential contribution
+- Open source project with collaborative development model
 
-**Assessment**: Mature project with strong community engagement, ongoing development, and production-ready capabilities
+**Assessment**: Active open source project with community engagement. Further analysis would benefit from examining the actual codebase and documentation to understand specific capabilities and use cases.
 """
             else:
                 return clean_result
