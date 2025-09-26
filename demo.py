@@ -258,9 +258,10 @@ async def get_clean_reasoning_analysis(repo_name: str, github_data: str, readme_
         reasoning_query = f"analyze:{json.dumps(reasoning_data)}"
         reasoning_result = await reasoning_tool._arun(reasoning_query)
         
-        # Debug: Print what we actually got
-        print(f"DEBUG: Reasoning result type: {type(reasoning_result)}")
-        print(f"DEBUG: Reasoning result preview: {str(reasoning_result)[:200]}...")
+        # Debug: Print what we actually got (remove for production)
+        # print(f"DEBUG: Reasoning result type: {type(reasoning_result)}")
+        # print(f"DEBUG: Reasoning result preview: {str(reasoning_result)[:200]}...")
+        # print(f"DEBUG: Reasoning data being sent: {json.dumps(reasoning_data, indent=2)[:500]}...")
         
         # Clean up the output - extract just the text content
         if isinstance(reasoning_result, str):

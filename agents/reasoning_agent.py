@@ -4,7 +4,7 @@ Reasoning and Validation Agent for analyzing and validating information.
 from typing import Dict, List, Optional, Any, Tuple
 from langchain.tools import BaseTool
 from langchain.schema import BaseMessage, HumanMessage, AIMessage, SystemMessage
-from langchain.chat_models import ChatOpenAI
+from langchain_openai import ChatOpenAI
 from langchain.prompts import ChatPromptTemplate
 from pydantic import BaseModel, Field
 import json
@@ -52,31 +52,16 @@ Be thorough but concise in your analysis."""),
         ])
         
         self.analysis_prompt = ChatPromptTemplate.from_messages([
-            SystemMessage(content="""You are an expert analyst specializing in technical documentation and code analysis. Your role is to:
-1. Analyze the SPECIFIC technology, framework, or domain of the repository
-2. Identify what makes this project unique or interesting
-3. Assess the technical quality and maturity based on the actual content
-4. Provide SPECIFIC insights about this particular project, not generic advice
+            SystemMessage(content="""You are an expert analyst. Analyze the provided repository data and provide a comprehensive assessment.
 
-IMPORTANT: Your analysis must be specific to the repository being analyzed. Do not provide generic advice that could apply to any project. Focus on:
-- What this specific technology does
-- What makes it interesting or valuable
-- Specific technical strengths or weaknesses you observe
-- Domain-specific insights about the technology or use case
+Focus on:
+- What this project does and its purpose
+- Key technical characteristics
+- Community health indicators
+- Strengths and potential concerns
+- Use cases and applications
 
-CRITICAL: Be confident and direct in your analysis. Avoid phrases like "it appears to be", "looks like", "seems to be". State facts directly based on the evidence provided. Use definitive language like "This is", "The project is", "This technology does".
-
-IMPORTANT: Provide a comprehensive analysis that gives developers a clear understanding of what this repository is about. Include:
-- What the technology actually does and how it works
-- What makes it unique or valuable
-- Specific use cases and applications
-- Technical strengths and limitations
-- Community health and project maturity
-- Specific insights about the domain/technology
-
-Make the analysis longer and more detailed. Developers should understand the project's purpose, capabilities, and value proposition after reading your analysis.
-
-Avoid generic statements like "active development" or "good documentation" unless you can explain WHY specifically for this project."""),
+Be specific to this repository, not generic. Provide actionable insights for developers."""),
             HumanMessage(content="{input_data}")
         ])
         
@@ -207,19 +192,49 @@ Use clear, step-by-step reasoning and provide evidence for your conclusions.""")
             reasoning=reasoning
         )
     
-    async def analyze_combined_data(self, github_data: Dict[str, Any], doc_data: Dict[str, Any]) -> AnalysisResult:
+    async def analyze_combined_data(self, github_data: str, doc_data: str) -> AnalysisResult:
         """Analyze combined GitHub and documentation data."""
         
         # Prepare combined data for analysis
         combined_data = {
-            "github_repository": github_data,
-            "documentation": doc_data,
+            "github_analysis": github_data,
+            "readme_content": doc_data,
             "analysis_request": "Provide comprehensive analysis of this repository and its documentation"
         }
         
         # Get LLM analysis
-        response = await self.analysis_prompt.ainvoke({"input_data": json.dumps(combined_data, indent=2)})
-        analysis_text = response.content if hasattr(response, 'content') else str(response)
+        try:
+            # Create a simple prompt with the data
+            prompt_text = f"""Analyze this repository data and provide a comprehensive assessment:
+
+GitHub Analysis:
+{github_data}
+
+README Content:
+{doc_data}
+
+Please provide:
+1. What this project does and its purpose
+2. Key technical characteristics
+3. Community health indicators
+4. Strengths and potential concerns
+5. Use cases and applications
+
+Be specific to this repository, not generic. Provide actionable insights for developers."""
+
+            # Call the LLM directly with simple messages
+            from langchain.schema import HumanMessage, SystemMessage
+            messages = [
+                SystemMessage(content="You are an expert analyst specializing in technical documentation and code analysis."),
+                HumanMessage(content=prompt_text)
+            ]
+            
+            response = await self.llm.ainvoke(messages)
+            analysis_text = response.content if hasattr(response, 'content') else str(response)
+            
+        except Exception as e:
+            # Return a structured error response
+            analysis_text = f"LLM Analysis Error: {str(e)}. The OpenAI API call failed to generate proper analysis."
         
         # Parse the analysis
         key_findings = self._extract_key_findings(analysis_text)
@@ -352,8 +367,9 @@ class ReasoningTool(BaseTool):
                 data_end = query.rfind("}") + 1
                 if data_start != -1 and data_end != 0:
                     data = json.loads(query[data_start:data_end])
-                    github_data = data.get("github", {})
-                    doc_data = data.get("documentation", {})
+                    # Handle the actual data structure from demo.py
+                    github_data = data.get("github_analysis", "")
+                    doc_data = data.get("readme_content", "")
                     result = await self.agent.analyze_combined_data(github_data, doc_data)
                     return self._format_analysis_result(result)
             
