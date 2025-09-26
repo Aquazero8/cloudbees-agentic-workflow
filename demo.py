@@ -258,12 +258,22 @@ async def get_clean_reasoning_analysis(repo_name: str, github_data: str, readme_
         reasoning_query = f"analyze:{json.dumps(reasoning_data)}"
         reasoning_result = await reasoning_tool._arun(reasoning_query)
         
+        # Debug: Print what we actually got
+        print(f"DEBUG: Reasoning result type: {type(reasoning_result)}")
+        print(f"DEBUG: Reasoning result preview: {str(reasoning_result)[:200]}...")
+        
         # Clean up the output - extract just the text content
         if isinstance(reasoning_result, str):
-            # Remove the raw prompt template and extract clean content
-            clean_result = reasoning_result.replace("messages=[SystemMessage(content='", "")
-            clean_result = clean_result.replace("'), HumanMessage(content='{input_data}')]", "")
-            clean_result = clean_result.replace("\\n", "\n")
+            # Check if we got an error message
+            if "Error in reasoning operation:" in reasoning_result:
+                return f"## AI Analysis Summary\n\n**Error**: {reasoning_result}\n\n**Recommendation**: Check OpenAI API configuration and network connectivity."
+            
+            # Check if we got the template instead of analysis
+            if "You are an expert analyst" in reasoning_result:
+                clean_result = reasoning_result
+            else:
+                # The result is already properly formatted
+                clean_result = reasoning_result
             
             # If it still contains the template, try to extract the actual analysis
             if "You are an expert analyst" in clean_result:
