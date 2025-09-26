@@ -116,29 +116,33 @@ Key Information
 
 AI Analysis Summary
 
-Project Overview: [Repository Name] is a [Language]-based open source project. Based on the repository analysis, this appears to be an active development project with community engagement.
+Note: The AI reasoning analysis failed to generate a proper response. Below is the available repository data:
 
-Technology Stack: [Primary Language]
-Community Health: [X] stars, [Y] forks, [Z] open issues
+Repository: [owner/repo]
+Project Name: [Project Name]
 
-Key Capabilities:
-- Active development and maintenance
-- Community-driven project with [X] stars
-- [Y] forks indicating developer interest
-- Open source collaboration
-
-Technical Assessment:
-- Repository shows active development
-- Community engagement through stars and forks
-- [Z] open issues may indicate active maintenance or need for attention
+Available Data:
 - Language: [Primary Language]
+- Stars: [X]
+- Forks: [Y] 
+- Open Issues: [Z]
 
-Development Status:
-- Active repository with community participation
-- Suitable for further investigation and potential contribution
-- Open source project with collaborative development model
+Missing Analysis:
+- AI-powered project overview and capabilities assessment
+- Technical strengths and weaknesses analysis
+- Specific use cases and applications
+- Development status and maturity assessment
 
-Assessment: Active open source project with community engagement. Further analysis would benefit from examining the actual codebase and documentation to understand specific capabilities and use cases.
+Recommendation: 
+The repository data was successfully retrieved, but the AI analysis component failed to generate insights. This could be due to:
+- OpenAI API issues
+- Insufficient context for analysis
+- Model limitations with the provided data
+
+Next Steps: 
+- Review the GitHub analysis and README content above
+- Consider re-running the analysis
+- Check OpenAI API status and configuration
 ```
 
 ## Architecture

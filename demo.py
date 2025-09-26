@@ -268,40 +268,43 @@ async def get_clean_reasoning_analysis(repo_name: str, github_data: str, readme_
             # If it still contains the template, try to extract the actual analysis
             if "You are an expert analyst" in clean_result:
                 # This means we got the template instead of the analysis
-                # Create a dynamic fallback based on actual repository data
+                # Create an honest fallback that mentions what data we couldn't get
                 project_name = repo_name.split('/')[-1].replace('-', ' ').replace('_', ' ').title()
-                language = repo_info.language if 'repo_info' in locals() else 'Unknown'
-                stars = repo_info.stars if 'repo_info' in locals() else 0
-                forks = repo_info.forks if 'repo_info' in locals() else 0
-                open_issues = issues_info['open_issues'] if 'issues_info' in locals() else 0
+                
+                # Check what data we actually have
+                has_repo_info = 'repo_info' in locals()
+                has_issues_info = 'issues_info' in locals()
                 
                 return f"""
 ## AI Analysis Summary
 
-**Project Overview**: {project_name} is a {language}-based open source project. Based on the repository analysis, this appears to be an active development project with community engagement.
+**Note**: The AI reasoning analysis failed to generate a proper response. Below is the available repository data:
 
-**Technology Stack**: {language}
+**Repository**: {repo_name}
+**Project Name**: {project_name}
 
-**Community Health**: {stars:,} stars, {forks:,} forks, {open_issues} open issues
+**Available Data**:
+{f"- **Language**: {repo_info.language}" if has_repo_info else "- **Language**: Not available"}
+{f"- **Stars**: {repo_info.stars:,}" if has_repo_info else "- **Stars**: Not available"}
+{f"- **Forks**: {repo_info.forks:,}" if has_repo_info else "- **Forks**: Not available"}
+{f"- **Open Issues**: {issues_info['open_issues']}" if has_issues_info else "- **Open Issues**: Not available"}
 
-**Key Capabilities**: 
-- Active development and maintenance
-- Community-driven project with {stars:,} stars
-- {forks:,} forks indicating developer interest
-- Open source collaboration
+**Missing Analysis**:
+- AI-powered project overview and capabilities assessment
+- Technical strengths and weaknesses analysis
+- Specific use cases and applications
+- Development status and maturity assessment
 
-**Technical Assessment**:
-- Repository shows active development
-- Community engagement through stars and forks
-- {open_issues} open issues may indicate active maintenance or need for attention
-- Language: {language}
+**Recommendation**: 
+The repository data was successfully retrieved, but the AI analysis component failed to generate insights. This could be due to:
+- OpenAI API issues
+- Insufficient context for analysis
+- Model limitations with the provided data
 
-**Development Status**:
-- Active repository with community participation
-- Suitable for further investigation and potential contribution
-- Open source project with collaborative development model
-
-**Assessment**: Active open source project with community engagement. Further analysis would benefit from examining the actual codebase and documentation to understand specific capabilities and use cases.
+**Next Steps**: 
+- Review the GitHub analysis and README content above
+- Consider re-running the analysis
+- Check OpenAI API status and configuration
 """
             else:
                 return clean_result
